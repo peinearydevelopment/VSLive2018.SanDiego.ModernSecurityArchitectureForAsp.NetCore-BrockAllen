@@ -1,0 +1,62 @@
+Slides and Demos: https://tinyurl.com/yd8urwuf
+brockallen@gmail.com
+http://brockallen.com
+
+spa, native app, scheduled task, server rendered, web.api -> web.api
+    want to know on the right side of the arrow, who is invoking it from the left side of the arrow
+the os used to be the common thread amongst the applications
+now need to move security up the stack to something shared amongst all of these
+
+authentication -> knows who the person is and shares that information across the applications
+    this shares the same information about the user for all applications
+authorization -> provides the context specific to the applications
+
+client goes to security token server, that returns a token through the browser to the application
+
+create a login page
+    get username and password
+    look that up in db and validate
+    then
+        SignInAsync -> creates cookie(takes the claimsprincipal and serializes it into the cookie)
+        SignOutAsync -> removes the cookie
+        ChallengeAsync -> user is currently anonymous, but we need to know who they are(provides the redirect to the login page)
+        ForbidAsync -> the user has authenticated, but they are not authorized for this action
+        AuthenticateAsync -> (user already has a cookie from the sign-in method)reads the cookie and does the validation(deserializes the cookie into the claimsprincipal)
+    each authentication method can be named and that name is the scheme
+
+    "sub" claim is specified in the openID spec as the 'unique user id' name
+    authenticationtype -> metadata about the method a user used to authenticate
+        most people don't care, but there are some banking(or other) apps where normal password auth would be fine, but for certain transactions they would require multi-factor auth
+    
+Policy based authorization
+    policies are a series of requirements that need to be fulfilled
+
+when you send the request to google for auth, you can send a parameter called 'scope' which is what determines the claims google passes back
+
+what happens when we want to use google for auth, but don't want to allow everyone that has a google account to access our stuff?
+    you can add a 'temp cookie'
+        when user comes back from google, it should create that temp cookie
+        redirecturi from google should go to account callback
+        account callback is the way to process that temp cookie and turn it into real cookie, or ask additional information from the user.
+
+openid connect is authentincating the user to the front end app
+oauth secures apps calls to apis(oauth is underpinnings for openid connect specs, but not secure for authenticating the user)
+
+relying party == consuming app
+
+identity token
+    aud -> audience, lets you know what this token was intended for(each person has a room card - token all issued by the same issuer:hotel, aud would be for my room though, so i can't get into someone elses room)
+
+JwtSecurityTokenHandler.DefaultInbound
+
+implicit flow -> user
+client credentials flow -> no user, machine to machine
+hybrid flow -> server side web application invoking a webapi on behalf of a user
+
+
+NOTES: we need to create our own idp, don't have to recreate all of the login stuff across the institutions
+    can handle signout, etc
+
+    https://github.com/Sustainsys/Saml2
+    https://saml2.sustainsys.com/en/2.0/
+    https://www.nuget.org/packages/Sustainsys.Saml2.AspNetCore2
